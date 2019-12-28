@@ -56,6 +56,7 @@ compile_args = [
     '-fpermissive',
     '-fPIC',
     '-std=c++17',
+    '-DMS_WIN64',
 ]
 sources = [
     pth_join('python_solvespace', 'slvs.pyx'),
