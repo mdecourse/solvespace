@@ -36,17 +36,13 @@ def make_quaternion(
 ) -> Tuple[float, float, float, float]:
     ...
 
-
 class Params:
-
-    def __repr__(self) -> str:
-        ...
-
+    pass
 
 class Entity:
 
-    FREE_IN_3D: ClassVar[Entity]
-    NONE: ClassVar[Entity]
+    FREE_IN_3D: ClassVar[Entity] = ...
+    NONE: ClassVar[Entity] = ...
     params: Params
 
     def is_3d(self) -> bool:
@@ -97,13 +93,10 @@ class Entity:
     def is_arc(self) -> bool:
         ...
 
-    def __repr__(self) -> str:
-        ...
-
-
 class SolverSystem:
 
     def __init__(self) -> None:
+        """Initialization method. Create a solver system."""
         ...
 
     def clear(self) -> None:
@@ -127,7 +120,7 @@ class SolverSystem:
     def constraints(self) -> Counter[str]:
         ...
 
-    def faileds(self) -> List[int]:
+    def failures(self) -> List[int]:
         ...
 
     def solve(self) -> int:
@@ -186,7 +179,6 @@ class SolverSystem:
         ...
 
     def coincident(self, e1: Entity, e2: Entity, wp: Entity = Entity.FREE_IN_3D) -> None:
-        """Coincident two entities."""
         ...
 
     def distance(
@@ -196,11 +188,9 @@ class SolverSystem:
         value: float,
         wp: Entity = Entity.FREE_IN_3D
     ) -> None:
-        """Distance constraint between two entities."""
         ...
 
     def equal(self, e1: Entity, e2: Entity, wp: Entity = Entity.FREE_IN_3D) -> None:
-        """Equal constraint between two entities."""
         ...
 
     def equal_included_angle(
@@ -211,9 +201,6 @@ class SolverSystem:
         e4: Entity,
         wp: Entity
     ) -> None:
-        """Constraint that point 1 and line 1, point 2 and line 2
-        must have same distance.
-        """
         ...
 
     def equal_point_to_line(
@@ -224,13 +211,9 @@ class SolverSystem:
         e4: Entity,
         wp: Entity
     ) -> None:
-        """Constraint that line 1 and line 2, line 3 and line 4
-        must have same included angle.
-        """
         ...
 
     def ratio(self, e1: Entity, e2: Entity, value: float, wp: Entity) -> None:
-        """The ratio constraint between two lines."""
         ...
 
     def symmetric(
@@ -240,15 +223,12 @@ class SolverSystem:
         e3: Entity = Entity.NONE,
         wp: Entity = Entity.FREE_IN_3D
     ) -> None:
-        """Symmetric constraint between two points."""
         ...
 
     def symmetric_h(self, e1: Entity, e2: Entity, wp: Entity) -> None:
-        """Symmetric constraint between two points with horizontal line."""
         ...
 
     def symmetric_v(self, e1: Entity, e2: Entity, wp: Entity) -> None:
-        """Symmetric constraint between two points with vertical line."""
         ...
 
     def midpoint(
@@ -257,45 +237,34 @@ class SolverSystem:
         e2: Entity,
         wp: Entity = Entity.FREE_IN_3D
     ) -> None:
-        """Midpoint constraint between a point and a line."""
         ...
 
     def horizontal(self, e1: Entity, wp: Entity) -> None:
-        """Horizontal constraint of a 2d point."""
         ...
 
     def vertical(self, e1: Entity, wp: Entity) -> None:
-        """Vertical constraint of a 2d point."""
         ...
 
     def diameter(self, e1: Entity, value: float, wp: Entity) -> None:
-        """Diameter constraint of a circular entities."""
         ...
 
     def same_orientation(self, e1: Entity, e2: Entity) -> None:
-        """Equal orientation constraint between two 3d normals."""
         ...
 
     def angle(self, e1: Entity, e2: Entity, value: float, wp: Entity, inverse: bool = False) -> None:
-        """Degrees angle constraint between two 2d lines."""
         ...
 
     def perpendicular(self, e1: Entity, e2: Entity, wp: Entity, inverse: bool = False) -> None:
-        """Perpendicular constraint between two 2d lines."""
         ...
 
     def parallel(self, e1: Entity, e2: Entity, wp: Entity = Entity.FREE_IN_3D) -> None:
-        """Parallel constraint between two lines."""
         ...
 
     def tangent(self, e1: Entity, e2: Entity, wp: Entity = Entity.FREE_IN_3D) -> None:
-        """Parallel constraint between two entities."""
         ...
 
     def distance_proj(self, e1: Entity, e2: Entity, value: float) -> None:
-        """Projected distance constraint between two 3d points."""
         ...
 
     def dragged(self, e1: Entity, wp: Entity = Entity.FREE_IN_3D) -> None:
-        """Dragged constraint of a point."""
         ...
