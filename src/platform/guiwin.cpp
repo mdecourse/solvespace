@@ -1227,7 +1227,7 @@ public:
     }
 
     void SetCursor(Cursor cursor) override {
-        LPWSTR cursorName;
+        LPWSTR cursorName = IDC_ARROW;
         switch(cursor) {
             case Cursor::POINTER: cursorName = IDC_ARROW; break;
             case Cursor::HAND:    cursorName = IDC_HAND;  break;
@@ -1389,7 +1389,7 @@ WindowRef CreateWindow(Window::Kind kind, WindowRef parentWindow) {
 static HWND hSpaceWareDriverClass;
 
 void Open3DConnexion() {
-    HWND hSpaceWareDriverClass = FindWindowW(L"SpaceWare Driver Class", NULL);
+    hSpaceWareDriverClass = FindWindowW(L"SpaceWare Driver Class", NULL);
     if(hSpaceWareDriverClass != NULL) {
         SiInitialize();
     }
