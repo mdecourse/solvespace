@@ -155,6 +155,52 @@ inline bool Vector::Equals(Vector v, double tol) const {
     return dv.MagSquared() < tol*tol;
 }
 
+inline Vector Vector::From(double x, double y, double z) {
+    return {x, y, z};
+}
+
+inline Vector Vector::Plus(Vector b) const {
+    return {x + b.x, y + b.y, z + b.z};
+}
+
+inline Vector Vector::Minus(Vector b) const {
+    return {x - b.x, y - b.y, z - b.z};
+}
+
+inline Vector Vector::Negated() const {
+    return {-x, -y, -z};
+}
+
+inline Vector Vector::Cross(Vector b) const {
+    return {-(z * b.y) + (y * b.z), (z * b.x) - (x * b.z), -(y * b.x) + (x * b.y)};
+}
+
+inline double Vector::Dot(Vector b) const {
+    return (x * b.x + y * b.y + z * b.z);
+}
+
+inline double Vector::MagSquared() const {
+    return x * x + y * y + z * z;
+}
+
+inline double Vector::Magnitude() const {
+    return sqrt(x * x + y * y + z * z);
+}
+
+inline Vector Vector::ScaledBy(const double v) const {
+    return {x * v, y * v, z * v};
+}
+
+inline void Vector::MakeMaxMin(Vector *maxv, Vector *minv) const {
+    maxv->x = max(maxv->x, x);
+    maxv->y = max(maxv->y, y);
+    maxv->z = max(maxv->z, z);
+
+    minv->x = min(minv->x, x);
+    minv->y = min(minv->y, y);
+    minv->z = min(minv->z, z);
+}
+
 struct VectorHash {
     size_t operator()(const Vector &v) const;
 };
@@ -215,12 +261,12 @@ public:
     void ReserveMore(int howMuch) {
         if(n + howMuch > elemsAllocated) {
             elemsAllocated = n + howMuch;
-            T *newElem = (T *)MemAlloc((size_t)elemsAllocated*sizeof(T));
+            T *newElem = (T *)::operator new[]((size_t)elemsAllocated*sizeof(T));
             for(int i = 0; i < n; i++) {
                 new(&newElem[i]) T(std::move(elem[i]));
                 elem[i].~T();
             }
-            MemFree(elem);
+            ::operator delete[](elem);
             elem = newElem;
         }
     }
@@ -286,7 +332,7 @@ public:
     void Clear() {
         for(int i = 0; i < n; i++)
             elem[i].~T();
-        if(elem) MemFree(elem);
+        if(elem) ::operator delete[](elem);
         elem = NULL;
         n = elemsAllocated = 0;
     }
@@ -368,7 +414,11 @@ public:
 
     H AddAndAssignId(T *t) {
         t->h.v = (MaximumId() + 1);
-        Add(t);
+        AllocForOneMore();
+
+        // Copy-construct at the end of the list.
+        new(&elem[n]) T(*t);
+        ++n;
 
         return t->h;
     }
@@ -401,12 +451,12 @@ public:
     void ReserveMore(int howMuch) {
         if(n + howMuch > elemsAllocated) {
             elemsAllocated = n + howMuch;
-            T *newElem = (T *)MemAlloc((size_t)elemsAllocated*sizeof(T));
+            T *newElem = (T *)::operator new[]((size_t)elemsAllocated*sizeof(T));
             for(int i = 0; i < n; i++) {
                 new(&newElem[i]) T(std::move(elem[i]));
                 elem[i].~T();
             }
-            MemFree(elem);
+            ::operator delete[](elem);
             elem = newElem;
         }
     }
@@ -525,7 +575,7 @@ public:
 
     void DeepCopyInto(IdList<T,H> *l) {
         l->Clear();
-        l->elem = (T *)MemAlloc(elemsAllocated * sizeof(elem[0]));
+        l->elem = (T *)::operator new[](elemsAllocated * sizeof(elem[0]));
         for(int i = 0; i < n; i++)
             new(&l->elem[i]) T(elem[i]);
         l->elemsAllocated = elemsAllocated;
@@ -537,7 +587,7 @@ public:
             elem[i].Clear();
             elem[i].~T();
         }
-        if(elem) MemFree(elem);
+        if(elem) ::operator delete[](elem);
         elem = NULL;
         elemsAllocated = n = 0;
     }

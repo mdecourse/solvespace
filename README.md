@@ -1,5 +1,10 @@
+<img src="https://avatars1.githubusercontent.com/u/18541596?s=70&v=4" width="70" height="70" alt="SolveSpace Logo" align="left">
+
 SolveSpace
 ==========
+[![Build Status](https://travis-ci.com/solvespace/solvespace.svg?branch=master)](https://travis-ci.com/solvespace/solvespace)
+[![solvespace](https://snapcraft.io/solvespace/badge.svg)](https://snapcraft.io/solvespace)
+[![solvespace](https://snapcraft.io/solvespace/trending.svg?name=0)](https://snapcraft.io/solvespace)
 
 This repository contains the source code of [SolveSpace][], a parametric
 2d/3d CAD.
@@ -83,7 +88,7 @@ Before building, check out the project and the necessary submodules:
 
     git clone https://github.com/solvespace/solvespace
     cd solvespace
-    git submodule update --init extlib/libdxfrw extlib/flatbuffers extlib/q3d
+    git submodule update --init extlib/libdxfrw extlib/flatbuffers extlib/q3d extlib/mimalloc
 
 After that, build SolveSpace as following:
 
@@ -99,10 +104,11 @@ by passing the `-DENABLE_GUI=OFF` flag to the cmake invocation.
 
 ### Building for Windows
 
-You will need the usual build tools, CMake and a Windows cross-compiler.
-On a Debian derivative (e.g. Ubuntu) these can be installed with:
+Ubuntu will require 20.04 or above. Cross-compiling with WSL is also confirmed to work.
 
-    apt-get install git build-essential cmake mingw-w64
+You will need the usual build tools, CMake, a Windows cross-compiler, and flatc. On a Debian derivative (e.g. Ubuntu) these can be installed with:
+
+    apt-get install git build-essential cmake mingw-w64 libflatbuffers-dev
 
 Before building, check out the project and the necessary submodules:
 
@@ -110,20 +116,13 @@ Before building, check out the project and the necessary submodules:
     cd solvespace
     git submodule update --init
 
-After that, build 32-bit SolveSpace as following:
-
-    mkdir build
-    cd build
-    cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-mingw32.cmake \
-             -DCMAKE_BUILD_TYPE=Release
-    make
-
-Or, build 64-bit SolveSpace as following:
+Build 64-bit SolveSpace with the following:
 
     mkdir build
     cd build
     cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-mingw64.cmake \
-             -DCMAKE_BUILD_TYPE=Release
+             -DCMAKE_BUILD_TYPE=Release \
+             -DFLATC=$(which flatc)
     make
 
 The graphical interface is built as `build/bin/solvespace.exe`, and the command-line interface
@@ -183,7 +182,7 @@ Before building, check out the project and the necessary submodules:
 
     git clone https://github.com/solvespace/solvespace
     cd solvespace
-    git submodule update --init extlib/libdxfrw extlib/flatbuffers extlib/q3do
+    git submodule update --init extlib/libdxfrw extlib/flatbuffers extlib/q3d extlib/mimalloc
 
 After that, build SolveSpace as following:
 
@@ -201,7 +200,9 @@ by passing the `-DENABLE_GUI=OFF` flag to the cmake invocation.
 Building on Windows
 -------------------
 
-You will need [git][gitwin], [cmake][cmakewin] and Visual C++.
+You will need [git][gitwin], [cmake][cmakewin] and a C++ compiler
+(either Visual C++ or MinGW). If using Visual C++, Visual Studio 2015
+or later is required.
 
 ### Building with Visual Studio IDE
 

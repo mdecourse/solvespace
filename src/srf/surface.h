@@ -10,10 +10,6 @@
 #ifndef SOLVESPACE_SURFACE_H
 #define SOLVESPACE_SURFACE_H
 
-// Utility functions, Bernstein polynomials of order 1-3 and their derivatives.
-double Bernstein(int k, int deg, double t);
-double BernsteinDerivative(int k, int deg, double t);
-
 class SBezierList;
 class SSurface;
 class SCurvePt;
@@ -96,12 +92,12 @@ public:
     Vector Start() const;
     Vector Finish() const;
     bool Equals(SBezier *b) const;
-    void MakePwlInto(SEdgeList *sel, double chordTol=0) const;
-    void MakePwlInto(List<SCurvePt> *l, double chordTol=0) const;
-    void MakePwlInto(SContour *sc, double chordTol=0) const;
-    void MakePwlInto(List<Vector> *l, double chordTol=0) const;
-    void MakePwlWorker(List<Vector> *l, double ta, double tb, double chordTol) const;
-    void MakePwlInitialWorker(List<Vector> *l, double ta, double tb, double chordTol) const;
+    void MakePwlInto(SEdgeList *sel, double chordTol=0, double max_dt=0.0) const;
+    void MakePwlInto(List<SCurvePt> *l, double chordTol=0, double max_dt=0.0) const;
+    void MakePwlInto(SContour *sc, double chordTol=0, double max_dt=0.0) const;
+    void MakePwlInto(List<Vector> *l, double chordTol=0, double max_dt=0.0) const;
+    void MakePwlWorker(List<Vector> *l, double ta, double tb, double chordTol, double max_dt) const;
+    void MakePwlInitialWorker(List<Vector> *l, double ta, double tb, double chordTol, double max_dt) const;
     void MakeNonrationalCubicInto(SBezierList *bl, double tolerance, int depth = 0) const;
 
     void AllIntersectionsWith(const SBezier *sbb, SPointList *spl) const;
@@ -223,6 +219,7 @@ public:
     SSurface *GetSurfaceB(SShell *a, SShell *b) const;
 
     void Clear();
+    void GetAxisAlignedBounding(Vector *ptMax, Vector *ptMin) const;
 };
 
 // A segment of a curve by which a surface is trimmed: indicates which curve,
@@ -260,7 +257,7 @@ public:
     enum class CombineAs : uint32_t {
         UNION      = 10,
         DIFFERENCE = 11,
-        INTERSECT  = 12
+        INTERSECTION  = 12
     };
 
     int             tag;
@@ -303,7 +300,7 @@ public:
                                   SShell *shell, SShell *sha, SShell *shb);
     void FindChainAvoiding(SEdgeList *src, SEdgeList *dest, SPointList *avoid);
     SSurface MakeCopyTrimAgainst(SShell *parent, SShell *a, SShell *b,
-                                    SShell *into, SSurface::CombineAs type);
+                                    SShell *into, SSurface::CombineAs type, int dbg_index);
     void TrimFromEdgeList(SEdgeList *el, bool asUv);
     void IntersectAgainst(SSurface *b, SShell *agnstA, SShell *agnstB,
                           SShell *into);
@@ -336,15 +333,17 @@ public:
     bool PointIntersectingLine(Vector p0, Vector p1, double *u, double *v) const;
     Vector ClosestPointOnThisAndSurface(SSurface *srf2, Vector p);
     void PointOnSurfaces(SSurface *s1, SSurface *s2, double *u, double *v);
+    void PointOnCurve(const SBezier *curve, double *up, double *vp);
     Vector PointAt(double u, double v) const;
     Vector PointAt(Point2d puv) const;
-    void TangentsAt(double u, double v, Vector *tu, Vector *tv) const;
+    void TangentsAt(double u, double v, Vector *tu, Vector *tv, bool retry=true) const;
     Vector NormalAt(Point2d puv) const;
     Vector NormalAt(double u, double v) const;
     bool LineEntirelyOutsideBbox(Vector a, Vector b, bool asSegment) const;
     void GetAxisAlignedBounding(Vector *ptMax, Vector *ptMin) const;
     bool CoincidentWithPlane(Vector n, double d) const;
     bool CoincidentWith(SSurface *ss, bool sameNormal) const;
+    bool ContainsPlaneCurve(SCurve *sc) const;
     bool IsExtrusion(SBezier *of, Vector *along) const;
     bool IsCylinder(Vector *axis, Vector *center, double *r,
                         Vector *start, Vector *finish) const;
@@ -366,8 +365,9 @@ public:
     void MakeClassifyingBsp(SShell *shell, SShell *useCurvesFrom);
     double ChordToleranceForEdge(Vector a, Vector b) const;
     void MakeTriangulationGridInto(List<double> *l, double vs, double vf,
-                                    bool swapped) const;
+                                    bool swapped, int depth) const;
     Vector PointAtMaybeSwapped(double u, double v, bool swapped) const;
+    Vector NormalAtMaybeSwapped(double u, double v, bool swapped) const;
 
     void Reverse();
     void Clear();
@@ -390,6 +390,7 @@ public:
     void MakeFirstOrderRevolvedSurfaces(Vector pt, Vector axis, int i0);
     void MakeFromUnionOf(SShell *a, SShell *b);
     void MakeFromDifferenceOf(SShell *a, SShell *b);
+    void MakeFromIntersectionOf(SShell *a, SShell *b);
     void MakeFromBoolean(SShell *a, SShell *b, SSurface::CombineAs type);
     void CopyCurvesSplitAgainst(bool opA, SShell *agnst, SShell *into);
     void CopySurfacesTrimAgainst(SShell *sha, SShell *shb, SShell *into, SSurface::CombineAs type);

@@ -1058,7 +1058,7 @@ public:
         sscheck(window = (WindowImplWin32 *)GetWindowLongPtr(hWindow, 0));
 
         switch(msg) {
-            case WM_KEYDOWN:
+            case WM_CHAR:
                 if(wParam == VK_RETURN) {
                     if(window->onEditingDone) {
                         int length;
@@ -1656,7 +1656,9 @@ void OpenInBrowser(const std::string &url) {
     ShellExecuteW(NULL, L"open", Widen(url).c_str(), NULL, NULL, SW_SHOWNORMAL);
 }
 
-void InitGui(int argc, char **argv) {
+std::vector<std::string> InitGui(int argc, char **argv) {
+    std::vector<std::string> args = InitCli(argc, argv);
+
     INITCOMMONCONTROLSEX icc;
     icc.dwSize = sizeof(icc);
     icc.dwICC  = ICC_STANDARD_CLASSES|ICC_BAR_CLASSES;
@@ -1665,6 +1667,8 @@ void InitGui(int argc, char **argv) {
     if(!SetLocale((uint16_t)GetUserDefaultLCID())) {
         SetLocale("en_US");
     }
+
+    return args;
 }
 
 void RunGui() {
