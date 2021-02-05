@@ -207,8 +207,8 @@ void GraphicsWindow::MakeSelected(Selection *stog) {
 //-----------------------------------------------------------------------------
 void GraphicsWindow::SelectByMarquee() {
     Point2d marqueePoint = ProjectPoint(orig.marqueePoint);
-    BBox marqueeBBox = BBox::From(Vector::From(marqueePoint.x, marqueePoint.y, -1),
-                                  Vector::From(orig.mouse.x,   orig.mouse.y,    1));
+    BBox marqueeBBox = BBox::From(Vector::From(marqueePoint.x, marqueePoint.y, VERY_NEGATIVE),
+                                  Vector::From(orig.mouse.x,   orig.mouse.y,   VERY_POSITIVE));
 
     Entity *e;
     for(e = SK.entity.First(); e; e = SK.entity.NextAfter(e)) {
@@ -342,6 +342,8 @@ GraphicsWindow::Selection GraphicsWindow::ChooseFromHoverToSelect() {
     Group *activeGroup = SK.GetGroup(SS.GW.activeGroup);
     int bestOrder = -1;
     int bestZIndex = 0;
+    double bestDepth = VERY_POSITIVE;
+    
     for(const Hover &hov : hoverList) {
         hGroup hg = {};
         if(hov.selection.entity.v != 0) {
@@ -353,8 +355,11 @@ GraphicsWindow::Selection GraphicsWindow::ChooseFromHoverToSelect() {
         Group *g = SK.GetGroup(hg);
         if(g->order > activeGroup->order) continue;
         if(bestOrder != -1 && (bestOrder > g->order || bestZIndex > hov.zIndex)) continue;
+        // we have hov.zIndex is >= best and hov.group is >= best (but not > active group)
+        if(hov.depth > bestDepth && bestOrder == g->order && bestZIndex == hov.zIndex) continue;
         bestOrder  = g->order;
         bestZIndex = hov.zIndex;
+        bestDepth = hov.depth;
         sel = hov.selection;
     }
     return sel;
@@ -370,6 +375,8 @@ GraphicsWindow::Selection GraphicsWindow::ChooseFromHoverToDrag() {
     Group *activeGroup = SK.GetGroup(SS.GW.activeGroup);
     int bestOrder = -1;
     int bestZIndex = 0;
+    double bestDepth = VERY_POSITIVE;
+
     for(const Hover &hov : hoverList) {
         hGroup hg = {};
         if(hov.selection.entity.v != 0) {
@@ -383,6 +390,8 @@ GraphicsWindow::Selection GraphicsWindow::ChooseFromHoverToDrag() {
         Group *g = SK.GetGroup(hg);
         if(g->order > activeGroup->order) continue;
         if(bestOrder != -1 && (bestOrder > g->order || bestZIndex > hov.zIndex)) continue;
+        // we have hov.zIndex is >= best and hov.group is >= best (but not > active group)
+        if(hov.depth > bestDepth && bestOrder == g->order && bestZIndex == hov.zIndex) continue;
         bestOrder  = g->order;
         bestZIndex = hov.zIndex;
         sel = hov.selection;
@@ -439,6 +448,7 @@ void GraphicsWindow::HitTestMakeSelection(Point2d mp) {
             Hover hov = {};
             hov.distance = canvas.minDistance;
             hov.zIndex   = canvas.maxZIndex;
+            hov.depth    = canvas.minDepth;
             hov.selection.entity = e.h;
             hoverList.Add(&hov);
         }
